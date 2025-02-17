@@ -59,6 +59,18 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
 });
 
+Route::middleware(['auth.custom:web'])->group(function () {
+    Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+    Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+    Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('user.updateProfile');
+});
+
+Route::middleware(['auth.custom:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/users', [AdminController::class, 'manageUsers'])->name('admin.users');
+    Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
+});
+
 Route::middleware('admin')->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');

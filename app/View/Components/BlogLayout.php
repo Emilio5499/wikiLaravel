@@ -2,10 +2,11 @@
 
 namespace App\View\Components;
 
+use Closure;
+use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Illuminate\View\View;
 
-class AppLayout extends Component
+class BlogLayout extends Component
 {
     public function __construct(
         public string $metaTitle = 'Default title',
@@ -14,10 +15,10 @@ class AppLayout extends Component
     {}
 
     /**
-     * Get the view / contents that represents the component.
+     * Get the view / contents that represent the component.
      */
-    public function render(): View
+    public function render(): View|Closure|string
     {
-        return view('layouts.app');
+        return view('layouts.blog-layout');
     }
 }
