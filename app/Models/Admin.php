@@ -5,14 +5,18 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class Admin extends Authenticatable
 {
     use Notifiable;
 
+    protected $table = 'admins';
     protected $fillable = ['name', 'email', 'password'];
+
+    protected $hidden = ['password'];
 
     public function isAdmin()
     {
-        return false;
+        return true;
     }
 }
+
