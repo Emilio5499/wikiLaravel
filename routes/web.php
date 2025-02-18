@@ -1,19 +1,29 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Auth\AdminAuthController;
-use App\Http\Controllers\Auth\UserAuthController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'welcome')->name('home');
+Route::view('contacto', 'contact')->name('contact');
+
+Route::get('blog/myposts', [PostController::class, 'userPosts'])
+     ->name('blog.myposts');
+Route::resource('blog', PostController::class)
+    ->names('posts')
+    ->parameters(['blog' => 'post']);
+
+Route::view('nosotros', 'about')->name('about');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -21,60 +31,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
-
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index']);
+Route::middleware(['auth'])->group(function () {
+    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
 });
 
-Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/profile', [UserController::class, 'index']);
+Route::middleware(['auth', 'can:moderate,App\Models\Post'])->group(function () {
+    Route::get('/posts/pending', [PostController::class, 'pending'])->name('posts.pending');
+    Route::post('/posts/{id}/approve', [PostController::class, 'approve'])->name('posts.approve');
+    Route::post('/posts/{id}/reject', [PostController::class, 'reject'])->name('posts.reject');
 });
 
-Route::get('/login', function () {
-    return view('auth.login');
-});
-Route::post('/login', [UserAuthController::class, 'login']);
-Route::post('/logout', [UserAuthController::class, 'logout']);
-
-Route::prefix('admin')->group(function () {
-    Route::get('/login', function () {
-        return view('auth.admin_login');
-    });
-    Route::post('/login', [AdminAuthController::class, 'login']);
-    Route::post('/logout', [AdminAuthController::class, 'logout']);
-});
-
-Route::middleware(['auth:web'])->group(function () {
-    Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
-    Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
-    Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('user.updateProfile');
-});
-
-Route::middleware(['auth:admin', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/users', [AdminController::class, 'manageUsers'])->name('admin.users');
-    Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
-});
-
-Route::middleware(['auth.custom:web'])->group(function () {
-    Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
-    Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
-    Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('user.updateProfile');
-});
-
-Route::middleware(['auth.custom:admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/users', [AdminController::class, 'manageUsers'])->name('admin.users');
-    Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
-});
-
-Route::middleware('admin')->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    });
-});
+Route::get('/', [PostController::class, 'index'])->name('home');
 
 require __DIR__.'/auth.php';

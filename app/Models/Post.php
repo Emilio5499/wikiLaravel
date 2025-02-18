@@ -10,10 +10,15 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'body', 'summary', 'status', 'reading_time', 'user_id', 'published_at'];
+    protected $fillable = ['user_id', 'title', 'content', 'status'];
 
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function isApproved()
+    {
+        return $this->status === 'approved';
     }
 }

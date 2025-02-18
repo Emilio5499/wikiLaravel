@@ -16,3 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+
+    $app->singleton(
+        Illuminate\Contracts\Http\Kernel::class,
+        \App\Http\Kernel::class
+    );

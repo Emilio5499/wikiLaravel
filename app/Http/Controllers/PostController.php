@@ -1,113 +1,69 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
-use App\Models\Post;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
-    public function __construct()
+    public function create()
     {
-        $this->middleware('auth')->except('index', 'show');
+        $statuses = ['Borrador', 'Publicado', 'Archivado'];
+
+        return view('posts.create', ['post' => new Post(), 'statuses' => $statuses]);
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
+        $status = auth()->user()->isAdmin() ? 'aprobado' : 'pendiente';
+
+        $post = new Post();
+        $post->title = $request->title;
+        $post->content = $request->content;
+        $post->user_id = auth()->id();
+        $post->status = $status;
+        $post->save();
+
+        return redirect()->route('posts.index')->with('success', 'Post creado.');
+    }
+
 
     public function index()
     {
-        $posts = Post::where('published_at', '<=', now())
-            ->get();
-
+        $posts = Post::where('status', 'approved')->get();
         return view('posts.index', compact('posts'));
     }
 
-    public function show(Post $post)
+    public function pending()
     {
-        return view('posts.show', compact('post'));
+        $this->authorize('moderate');
+
+        $posts = Post::where('status', 'pending')->get();
+        return view('posts.pending', compact('posts'));
     }
 
-    public function create()
+    public function approve($id)
     {
-        if (auth()->user()->role->name == 'admin' ||
-            auth()->user()->role->name == 'creator') {
-            $statuses = [
-                'draft' => 'borrador',
-                'published' => 'publicado',
-                'archived' => 'archivado',
-                'pending' => 'pendiente',
-            ];
+        $this->authorize('moderate');
 
-            return view('posts.create', ['post' => new Post(), 'statuses' => $statuses]);
-        }
+        $post = Post::findOrFail($id);
+        $post->update(['status' => 'approved']);
 
-        return $this->index();
+        return redirect()->route('posts.pending')->with('success', 'Post aprobado.');
     }
 
-    public function store(StorePostRequest $request)
+    public function reject($id)
     {
-        $post = auth()->user()->posts()->make($request->validated());
+        $this->authorize('moderate');
 
-        $post->slug = Str::slug($post->title);
-        $post->save();
+        $post = Post::findOrFail($id);
+        $post->update(['status' => 'rejected']);
 
-        return to_route('posts.index')
-            ->with('status', 'Post created successfully');
-    }
-
-    public function edit(Post $post)
-    {
-        if (auth()->user()->role->name == 'admin' ||
-            auth()->user()->role->name == 'validator' ||
-            auth()->user()->role->name == 'editor') {
-            $statuses = [
-                'draft' => 'borrador',
-                'published' => 'publicado',
-                'archived' => 'archivado',
-                'pending' => 'pendiente',
-            ];
-
-            return view('posts.edit', ['post' => $post, 'statuses' => $statuses]);
-        }
-
-        return $this->index();
-    }
-
-    public function update(UpdatePostRequest $request, Post $post)
-    {
-        $post->update($request->validated());
-        $post->slug = Str::slug($post->title);
-        $post->save();
-
-        return to_route('posts.show', $post)
-            ->with('status', 'Post updated successfully');
-    }
-
-    public function destroy(Post $post)
-    {
-
-
-        if (auth()->user()->role->name == 'admin' ||
-            auth()->user()->role->name == 'eraser') {
-
-            if ($post->status == 'draft' || $post->status == 'pending') {
-                $post->delete();
-            }
-
-            $post->delete();
-
-            return to_route('posts.index')
-                ->with('status', 'Post deleted successfully');
-        }
-
-        return $this->index();
-    }
-
-    public function userPosts()
-    {
-        $posts = auth()->user()->posts;
-
-        return view('posts.index', compact('posts'));
+        return redirect()->route('posts.pending')->with('error', 'Post rechazado.');
     }
 }
