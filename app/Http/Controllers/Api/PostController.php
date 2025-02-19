@@ -12,8 +12,10 @@ class PostController extends Controller
 {
     public function index()
     {
-        return response()->json(Post::where('approved', true)->get());
+        return $posts = Post::approved()->get();
     }
+
+
 
     public function store(Request $request)
     {
