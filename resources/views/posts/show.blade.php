@@ -100,6 +100,8 @@
                 Descargar en formato PDF
             </a>
 
+            <livewire:posts />
+
             <p>
                 {{ $post->body }}
             </p>

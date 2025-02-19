@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -46,5 +47,8 @@ Route::middleware(['auth', 'can:moderate,App\Models\Post'])->group(function () {
 Route::get('/', [PostController::class, 'index'])->name('home');
 
 Route::get('/posts/{id}/pdf', [PostController::class, 'descargarPDF'])->name('posts.pdf');
+
+Route::get('/language/{locale}', [LanguageController::class, 'change'])->name('language.change');
+
 
 require __DIR__.'/auth.php';

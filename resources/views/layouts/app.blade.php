@@ -9,7 +9,15 @@
 
         <meta name="description" content="{{ $metaDescription }}">
 
-        <!-- Fonts -->
+        <head>
+            @livewireStyles
+        </head>
+            <body>
+                {{ $slot }}
+                @livewireScripts
+            </body>
+
+    <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=abel:400|advent-pro:400" rel="stylesheet" />
 

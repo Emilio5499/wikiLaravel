@@ -23,6 +23,12 @@
                 </div>
             </div>
 
+            <ul>
+                <li><a href="{{ route('language.change', 'en') }}">🇬🇧 English</a></li>
+                <li><a href="{{ route('language.change', 'es') }}">🇪🇸 Español</a></li>
+            </ul>
+
+
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
