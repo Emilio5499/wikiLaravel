@@ -96,6 +96,10 @@
         <div
             class="prose prose-slate mx-auto mt-6 dark:prose-invert lg:prose-xl"
         >
+            <a href="{{ route('posts.pdf', $post->id) }}" class="btn btn-primary">
+                Descargar en formato PDF
+            </a>
+
             <p>
                 {{ $post->body }}
             </p>

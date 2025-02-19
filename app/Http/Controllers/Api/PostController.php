@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Events\PostCreado;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -26,8 +28,18 @@ class PostController extends Controller
             'user_id' => auth()->id(),
             $status = auth()->user()->isAdmin() ? 'aprobado' : 'pendiente'
         ]);
-
-        return response()->json($post, 201);
+        event(new PostCreado($post));
+        return redirect()->route('posts.index')->with('success', 'Se ha creado el post, esperando confirmacion de admin.');
     }
+
+    public function descargarPDF($id)
+    {
+        $post = Post::findOrFail($id);
+
+        $pdf = Pdf::loadView('posts.pdf', compact('post'));
+
+        return $pdf->download('post_' . $post->id . '.pdf');
+    }
+
 }
 

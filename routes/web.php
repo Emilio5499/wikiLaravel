@@ -45,4 +45,6 @@ Route::middleware(['auth', 'can:moderate,App\Models\Post'])->group(function () {
 
 Route::get('/', [PostController::class, 'index'])->name('home');
 
+Route::get('/posts/{id}/pdf', [PostController::class, 'descargarPDF'])->name('posts.pdf');
+
 require __DIR__.'/auth.php';

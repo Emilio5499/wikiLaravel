@@ -21,4 +21,11 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
+
+    protected $listen = [
+        \App\Events\PostCreado::class => [
+            \App\Listeners\NotificarAdmins::class,
+        ],
+    ];
+
 }

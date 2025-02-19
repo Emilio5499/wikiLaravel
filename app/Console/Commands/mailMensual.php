@@ -33,6 +33,6 @@ class mailMensual extends Command
             Mail::to($usuario->email)->send(new \App\Mail\mailMensual($evento));
         }
         $this->info('Se han enviado ' . count($usuarios) . ' correos.');
-        
+
     }
 }
