@@ -11,7 +11,7 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'title', 'content', 'status'];
+    protected $fillable = ['title', 'content', 'user_id', 'is_approved', 'status'];
 
     public function scopeApproved($query)
     {
